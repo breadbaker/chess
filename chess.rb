@@ -27,11 +27,12 @@ end
 
 class SlidingPiece < Piece
   def move_dirs(cord)
+
     moves = []
     i =  1
     while true
       pos = [self.pos[0] + (cord[0]* i), self.pos[1] + (cord[1] * i)]
-      break self.board.off_the_grid?(pos)
+      break if self.board.off_the_grid?(pos)
       hit_piece = self.board.pieces[pos[0]][pos[1]]
       if !hit_piece.nil?
         moves << pos if hit_piece.color != self.color
@@ -85,6 +86,7 @@ class Pawn < SteppingPiece
       space = self.board.pieces[pos[0] + move[0]][pos[1] + move[1]]
       moves << [pos[0] + move[0],pos[1] + move[1]] if space.nil?
     end
+
 
     moves
   end
@@ -284,11 +286,8 @@ class Board
   end
 
   def checked?(color)
-    king = pieces.flatten.select do |piece|
-      piece.is_a?(King) && piece.color == color
-    end.first
     pieces.flatten.compact.select do |piece|
-      piece.color != color && piece.moves.include?(king.pos)
+      piece.color != color && piece.moves.include?(king(color).pos)
     end.size > 0
   end
 
@@ -300,6 +299,12 @@ class Board
     end
 
     true
+  end
+
+  def king(color)
+    pieces.flatten.select do |piece|
+      piece.is_a?(King) && piece.color == color
+    end.first
   end
 
   def move(start_pos,end_pos)
@@ -359,11 +364,15 @@ class Game
       end
       turn = white_turn ? :black : :white
     end
-    turn = white_turn ? :black : :white
 
-    puts "#{turn.to_s.capitalize}'s win".bold
+    if board.checked?(:black)
+      puts "Checkmate! White Wins!".bold
+    elsif board.checked?(:white)
+      puts "Checkmate! Black Wins!".bold
+    else
+      puts "Stalemate. No one wins!".bold
+    end
   end
-
 end
 
 class HumanPlayer
@@ -378,7 +387,7 @@ class HumanPlayer
     start_pos = start_coord.split("")
     end_pos = end_coord.split("")
 
-        start_pos[1] = 8 - start_pos[1].to_i
+    start_pos[1] = 8 - start_pos[1].to_i
     start_pos[0] = LETTER_HASH[start_pos[0].to_sym]
 
     end_pos[1] = 8 - end_pos[1].to_i
@@ -389,4 +398,8 @@ class HumanPlayer
 
     [start_pos, end_pos]
   end
+end
+
+if __FILE__ == $PROGRAM_NAME
+  Game.new
 end
