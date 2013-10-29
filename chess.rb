@@ -335,6 +335,8 @@ class Array
 end
 
 class Game
+  require 'yaml'
+  require "festivaltts4r"
   attr_accessor :board, :white, :black
   def initialize
     @board = Board.new
@@ -342,6 +344,16 @@ class Game
     @black = HumanPlayer.new
     play_loop
   end
+
+  # def auto_save
+ #    file = 'chess.sav'
+ #    FileUtils.touch(file) unless File.exist?(file)
+ #
+ #    File.open(file,'w') do |f|
+ #      f.puts self.to_yaml
+ #    end
+ #
+ #  end
 
   def play_loop
     puts "Welcome to our game of Chess."
@@ -355,9 +367,17 @@ class Game
       puts self.board
       puts "#{turn.to_s.capitalize}'s turn".bold
       begin
-        start_pos, end_pos = player.play_turn
-        board.is_color?(start_pos,turn)
-        self.board.move(start_pos, end_pos)
+        input = player.play_turn
+
+        case input[:action]
+        when :save
+          save
+        when :load
+          load
+        else
+          board.is_color?(input[:start_pos],turn)
+          self.board.move(input[:start_pos], input[:end_pos])
+        end
       rescue InvalidMoveException => e
         puts e.message
         retry
@@ -381,7 +401,11 @@ class HumanPlayer
   def play_turn
     puts "Where do you want to move?"
     input = gets.chomp
-
+    if input.include?('l')
+      return {:action =>  :load}
+    elsif input include?('s')
+      return {:action =>  :save}
+    end
     start_coord, end_coord = input.split(" ")
 
     start_pos = start_coord.split("")
@@ -396,7 +420,9 @@ class HumanPlayer
     start_pos[0],start_pos[1] = start_pos[1],start_pos[0]
     end_pos[0],end_pos[1] = end_pos[1],end_pos[0]
 
-    [start_pos, end_pos]
+    { :start_pos  =>  start_pos,
+      :end_pos    =>  end_pos,
+      :action     =>  :move}
   end
 end
 
