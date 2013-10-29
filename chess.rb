@@ -1,32 +1,37 @@
+require 'colorize'
 class Piece
-  attr_accessor :board, :color, :name, :moves
+  attr_accessor :board, :color, :name, :move_coords, :pos
   def initialize(options)
     @board = options[:board]
     @color = options[:color]
     @name = options[:name]
     @pos = options[:pos]
-    @moves = []
+    @move_coords = []
   end
 
-  def moves
-
+  def valid_moves
+    moves.select do |move|
+      !move_into_check?(move)
+    end
   end
 
   def move_into_check?(pos)
-    new_board = self.board.dup
-
-    return true if new_board.checked?
+    new_board = Board.new(self.board.dup)
+    new_board.move(self.pos,pos)
+    return true if new_board.checked?(self.color)
   end
+end
 
+class InvalidMoveException < StandardError
 end
 
 class SlidingPiece < Piece
   def move_dirs(cord)
-    cord[0],cord[1]
     moves = []
     i =  1
     while true
-      pos = [pos[0]+  cord[0]* i, pos[1] + cord[1]*i]
+      pos = [self.pos[0] + (cord[0]* i), self.pos[1] + (cord[1] * i)]
+      break self.board.off_the_grid?(pos)
       hit_piece = self.board.pieces[pos[0]][pos[1]]
       if !hit_piece.nil?
         moves << pos if hit_piece.color != self.color
@@ -40,7 +45,7 @@ class SlidingPiece < Piece
   end
 
   def moves
-    self.moves.inject([]) do |moves,dir|
+    self.move_coords.inject([]) do |moves,dir|
       moves + move_dirs(dir)
     end
   end
@@ -48,31 +53,37 @@ end
 
 class SteppingPiece < Piece
   def moves
-    self.moves.select do |move|
-      space = self.board.pieces[pos[0] + move[0]][pos[1] + move[1]]
+    self.move_coords.map do |move|
+      [pos[0] + move[0],pos[1] + move[1]]
+    end.select do |move|
+      next if self.board.off_the_grid?(move)
+      space = self.board.pieces[move[0]][move[1]]
       space.nil? || space.color != self.color
     end
   end
 end
 
 class Pawn < SteppingPiece
-  def initialize
-    super
+  def to_s
+    self.color == :white ? "\u2659" : "\u265F"
   end
-
   def moves
     moves = []
 
     [[1,1],[1,-1]].each do |attack|
       attack[0] = -attack[0] if self.color == :white
       space = self.board.pieces[pos[0] + attack[0]][pos[1] + attack[1]]
-      moves << attack unless space.nil? || space.color == self.color
+      moves << [pos[0] + attack[0],pos[1] + attack[1]] unless space.nil? || space.color == self.color
     end
 
-    [[1,0],[2,0]].each do |move|
+    steps = [[1,0]]
+    steps << [2,0] if self.color == :white && self.pos[0] == 6
+    steps << [2,0] if self.color == :black && self.pos[0] == 1
+
+    steps.each do |move|
       move[0] = -move[0] if self.color == :white
       space = self.board.pieces[pos[0] + move[0]][pos[1] + move[1]]
-      moves << move if space.nil?
+      moves << [pos[0] + move[0],pos[1] + move[1]] if space.nil?
     end
 
     moves
@@ -80,69 +91,82 @@ class Pawn < SteppingPiece
 end
 
 class Knight < SteppingPiece
-  def initialize
+  KNIGHT_MOVES = [[1,2],[-1,2],[1,-2],
+    [-1,-2],[2,1],[-2,1],[-2,-1],[2,-1]]
+
+  def initialize(options)
     super
-    @moves = [[1,2],[-1,2],[1,-2],[-1,-2],
-            [2,1],[-2,1],[-2,-1],[2,-1]]
+    @move_coords = KNIGHT_MOVES
+  end
+
+  def to_s
+    self.color == :white ? "\u2658" : "\u265E"
   end
 end
 
 class King < SteppingPiece
-  def initialize
+  KING_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1],
+    [1, 1], [-1, 1], [-1, -1], [1, -1]]
+
+  def initialize(options)
     super
-    @moves = [[1, 0], [0, 1], [-1, 0], [0, -1],
-      [1, 1], [-1, 1], [-1, -1], [1, -1]]
+    @move_coords = KING_MOVES
+  end
+
+  def to_s
+    self.color == :white ? "\u2654" : "\u265A"
   end
 end
 
 class Bishop < SlidingPiece
-  def initialize
+  BISHOP_MOVES = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+
+  def initialize(options)
     super
-    @moves = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+    @move_coords = BISHOP_MOVES
+  end
+
+  def to_s
+    self.color == :white ? "\u2657" : "\u265D"
   end
 end
 
 class Rook < SlidingPiece
-  def initialize
+  ROOKIE_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+
+  def initialize(options)
     super
-    @moves = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+    @move_coords = ROOKIE_MOVES
+  end
+
+  def to_s
+    self.color == :white ? "\u2656" : "\u265C"
   end
 end
 
 class Queen < SlidingPiece
-  def initialize
+  QUEEN_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1],
+    [1, 1], [-1, 1], [-1, -1], [1, -1]]
+
+  def initialize(options)
     super
-    @moves = [[1, 0], [0, 1], [-1, 0], [0, -1],
-      [1, 1], [-1, 1], [-1, -1], [1, -1]]
+    @move_coords = QUEEN_MOVES
+  end
+
+  def to_s
+    self.color == :white ? "\u2655" : "\u265B"
   end
 end
 
 class Board
   attr_accessor :pieces
-  UNICODE_SYMBOLS = {
-    :black  =>  {
-      :king   => "\u265A",
-      :queen  => "\u265B",
-      :rook   => "\u265C",
-      :bishop => "\u265D",
-      :knight => "\u265E",
-      :pawn   => "\u265F"
-    },
-    :white  =>  {
-      :king   => "\u2654",
-      :queen  => "\u2655",
-      :rook   => "\u2656",
-      :bishop => "\u2657",
-      :knight => "\u2658",
-      :pawn   => "\u2659"
-    }
-  }
-  def initialize
-    @pieces = Array.new(8) { Array.new(8) }
-    build_board
+  def initialize(pieces=nil)
+    @pieces = pieces
+    build_board if pieces.nil?
   end
 
   def build_board
+    self.pieces = Array.new(8) { Array.new(8) }
     add_pawns
     add_rooks
     add_knights
@@ -224,31 +248,145 @@ class Board
     end
   end
 
-  def display
-    self.pieces.each do |row|
-      row_str = ""
-      row.each do |piece|
-        row_str += display_piece(piece)
-      end
-      puts row_str
+  def to_s
+    yellow = true
+    str = ""
+    letter_str = "   "
+    ("A".."H").to_a.each do |l|
+      letter_str += l.rjust(3)
+      letter_str += "".rjust(2)
     end
+    str += "#{letter_str}\n"
+    self.pieces.each_with_index do |row, idx|
+      row_str = "#{8 - idx}  "
+      row.each do |piece|
+        row_str += display_piece(piece).rjust(3).colorize(:background => yellow ? :light_yellow : :light_red)
+        row_str += "".rjust(2).colorize(:background => yellow ? :light_yellow : :light_red)
+        yellow = !yellow
+      end
+      str += "#{row_str}\n"
+      yellow = !yellow
+    end
+
+    str
   end
 
   def display_piece(piece)
     return ' ' if piece.nil?
-    name = piece.class.class_name.downcase.to_sym
-    UNICODE_SYMBOLS[piece.color][name]
+    piece.to_s
+  end
+
+  def is_color?(pos,color)
+    piece = self.pieces[pos[0]][pos[1]]
+    if piece.nil? || piece.color != color
+      raise InvalidMoveException, "That's not your piece"
+    end
   end
 
   def checked?(color)
+    king = pieces.flatten.select do |piece|
+      piece.is_a?(King) && piece.color == color
+    end.first
+    pieces.flatten.compact.select do |piece|
+      piece.color != color && piece.moves.include?(king.pos)
+    end.size > 0
+  end
 
+  def checkmate?(color)
+    pieces.flatten.compact.select do |piece|
+      if piece.color == color && !piece.valid_moves.empty?
+        return false
+      end
+    end
+
+    true
   end
 
   def move(start_pos,end_pos)
+
+    piece = self.pieces[start_pos[0]][start_pos[1]]
+    if piece.moves.include?(end_pos)
+      self.pieces[end_pos[0]][end_pos[1]] = piece
+      self.pieces[start_pos[0]][start_pos[1]] = nil
+      piece.pos = end_pos
+    else
+      raise InvalidMoveException, "Invalid Destination"
+    end
+  end
+
+  def dup
+    self.pieces.deep_dup
+  end
+
+  def off_the_grid?(pos)
+    pos[0] > 7 || pos[0] < 0 || pos[1] > 7 || pos[1] < 0
+  end
+end
+
+class Array
+  def deep_dup
+    self.map { |el| el.is_a?(Array) ? el.deep_dup : (el.nil? ? nil : el.dup) }
   end
 end
 
 class Game
+  attr_accessor :board, :white, :black
+  def initialize
+    @board = Board.new
+    @white = HumanPlayer.new
+    @black = HumanPlayer.new
+    play_loop
+  end
+
+  def play_loop
+    puts "Welcome to our game of Chess."
+    puts "You make moves by typing in the coordinate that you wish to move from, followed by the coordinate you're moving to"
+
+    turn = :white
+
+    until board.checkmate?(turn)
+      white_turn = turn == :white
+      player = white_turn ? @white : @black
+      puts self.board
+      puts "#{turn.to_s.capitalize}'s turn".bold
+      begin
+        start_pos, end_pos = player.play_turn
+        board.is_color?(start_pos,turn)
+        self.board.move(start_pos, end_pos)
+      rescue InvalidMoveException => e
+        puts e.message
+        retry
+      end
+      turn = white_turn ? :black : :white
+    end
+    turn = white_turn ? :black : :white
+
+    puts "#{turn.to_s.capitalize}'s win".bold
+  end
 
 end
 
+class HumanPlayer
+  LETTER_HASH = {:a => 0, :b => 1, :c => 2, :d => 3,
+    :e => 4, :f => 5, :g => 6, :h => 7}
+  def play_turn
+    puts "Where do you want to move?"
+    input = gets.chomp
+
+    start_coord, end_coord = input.split(" ")
+
+    start_pos = start_coord.split("")
+    end_pos = end_coord.split("")
+
+        start_pos[1] = 8 - start_pos[1].to_i
+    start_pos[0] = LETTER_HASH[start_pos[0].to_sym]
+
+    end_pos[1] = 8 - end_pos[1].to_i
+    end_pos[0] = LETTER_HASH[end_pos[0].to_sym]
+
+    start_pos[0],start_pos[1] = start_pos[1],start_pos[0]
+    end_pos[0],end_pos[1] = end_pos[1],end_pos[0]
+
+    [start_pos, end_pos]
+  end
+end
