@@ -52,17 +52,26 @@ class SlidingPiece < Piece
   end
 end
 
-class SteppingPiece < Piece
-  def moves
-    self.move_coords.map do |move|
-      [pos[0] + move[0],pos[1] + move[1]]
-    end.select do |move|
-      next if self.board.off_the_grid?(move)
-      space = self.board.pieces[move[0]][move[1]]
-      space.nil? || space.color != self.color
-    end
-  end
-end
+var SteppingPiece = function() {};
+SteppingPiece.prototype = {
+  moves: function() {
+    var move_arr = [];
+    for (var move in this.move_coords) {
+      x = move[0] + this.pos[0];
+      y = move[1] + this.pos[1];
+      move_arr.push([x, y]);
+    }
+    ret_arr = []
+    for (var move in move_arr) {
+      if (!this.board.off_the_grid(move)) {
+        space = this.board.pieces[move[0]][move[1]];
+        if (space == null || space.color != this.color)
+        ret_arr.push(space.pos)
+      }
+    }
+    return move_arr;
+  }
+}
 
 class Pawn < SteppingPiece
   attr_accessor :passant
