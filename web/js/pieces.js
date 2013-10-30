@@ -21,6 +21,9 @@ var Piece = Class.extend({
 });
 
 var SlidingPiece = Piece.extend({
+  init: function(options) {
+    this._super(options);
+  },
   move_dirs: function(cord) {
     var moves = [];
     var i = 1;
@@ -52,6 +55,9 @@ var SlidingPiece = Piece.extend({
 });
 
 var SteppingPiece = Piece.extend({
+  init: function(options) {
+    this._super(options);
+  },
   moves: function() {
     var move_arr = [];
     for (var move in this.move_coords) {
@@ -74,9 +80,8 @@ var SteppingPiece = Piece.extend({
 
 var Pawn = SteppingPiece.extend({
   init: function(options) {
-    var that = this._super(options);
-    that.passant = false;
-    return that;
+    this._super(options);
+    this.passant = false;
   },
   to_s: function() {
     return this.color == "white" ? "\u2659" : "\u265F";
@@ -120,10 +125,9 @@ var Pawn = SteppingPiece.extend({
 
 var Knight = SteppingPiece.extend({
     init: function(options) {
-      var that = this._super(options);
-      that.move_coords = [[1,2],[-1,2],[1,-2],
+      this._super(options);
+      this.move_coords = [[1,2],[-1,2],[1,-2],
       [-1,-2],[2,1],[-2,1],[-2,-1],[2,-1]];
-      return that;
     },
 
     to_s: function() {
