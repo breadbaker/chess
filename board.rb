@@ -199,7 +199,7 @@ class Board
     self.pieces[piece.pos[0]][piece.pos[1]]
   end
 
-  def move(start_pos,end_pos, checked_test=false)
+  def move(start_pos,end_pos, checked_test)
     piece = self.pieces[start_pos[0]][start_pos[1]]
     moves = piece.moves
     moves = piece.valid_moves unless checked_test
