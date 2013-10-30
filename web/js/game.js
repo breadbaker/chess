@@ -2,15 +2,29 @@ var Game = Class.extend({
   init: function(options) {
     this.board = new Board();
 
-    this.white = new Player('white');
-    this.black = new Player('black');
-    this.turn =
+    this.player = new Player(this);
+
+    this.turn = 'white';
+    this.play();
   },
   play: function() {
-
+    alert('welcome to chess.  it is whites turn click the piece you want to move.
+     then the place you want to move it. no backsies.')
   }
 });
 
+var Player = Class.extend({
+  init: function(game){
+    var that = this;
+    jQuery('#board').live('click',function(e){
+      console.log(e);
+      console.log(that);
+
+    });
+
+  }
+})
+/*
 class Game
   def play_loop
     puts "Welcome to our game of Chess."
@@ -86,3 +100,4 @@ end
 if __FILE__ == $PROGRAM_NAME
   Game.new
 end
+*/
