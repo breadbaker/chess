@@ -1,8 +1,10 @@
 var Game = Class.extend({
   init: function(options) {
-    this.board = options.board;
-    this.white = options.white;
-    this.black = options.black;
+    this.board = new Board();
+
+    this.white = new Player('white');
+    this.black = new Player('black');
+    this.turn =
   },
   play: function() {
 
