@@ -17,7 +17,7 @@ var Board = Class.extend({
     this.add_queens();
     this.add_kings();
 
-    return ;
+    return;
   },
   add_pawns: function(){
     var pawn = {
@@ -36,6 +36,7 @@ var Board = Class.extend({
       };
       this.pieces[6][i] = new Pawn(mergeObj(pawn,white));
     }
+    return true;
   },
   add_rooks: function(){
     var positions = [[0,0], [0, 7], [7, 0], [7, 7]]
@@ -54,6 +55,7 @@ var Board = Class.extend({
 
       this.pieces[position[0]][position[1]] = new Rook(rook);
     }
+    return true;
   },
   add_knights: function(){
     var positions = [[0,1], [0, 6], [7, 1], [7, 6]]
@@ -72,6 +74,7 @@ var Board = Class.extend({
 
       this.pieces[position[0]][position[1]] = new Knight(knight);
     }
+    return true;
   },
   add_knights: function(){
     var positions = [[0,1], [0, 6], [7, 1], [7, 6]]
@@ -90,6 +93,142 @@ var Board = Class.extend({
 
       this.pieces[position[0]][position[1]] = new Knight(knight);
     }
+    return true;
+  },
+  add_bishops: function(){
+    var positions = [0,2], [0, 5], [7, 2], [7, 5]]
+    var bishop = {
+      board : this
+    };
+    var color;
+    for( var position in positions )
+    {
+      if (position[0] == 0)
+        color = 'black';
+      else
+        color = 'white'
+
+      bishop = mergeObj(bishop,{ color : color, pos : position});
+
+      this.pieces[position[0]][position[1]] = new Bishop(bishop);
+    }
+    return true;
+  },
+  add_queens: function(){
+    var positions = [[0,3],[7, 3]]
+    var queen = {
+      board : this
+    };
+    var color;
+    for( var position in positions )
+    {
+      if (position[0] == 0)
+        color = 'black';
+      else
+        color = 'white'
+
+      queen = mergeObj(queen,{ color : color, pos : position});
+
+      this.pieces[position[0]][position[1]] = new Queen(queen);
+    }
+    return true;
+  },
+  add_kings: function(){
+    var positions = [[0,4],[7, 4]]
+    var king = {
+      board : this
+    };
+    var color;
+    for( var position in positions )
+    {
+      if (position[0] == 0)
+        color = 'black';
+      else
+        color = 'white'
+
+      queen = mergeObj(queen,{ color : color, pos : position});
+
+      this.pieces[position[0]][position[1]] = new King(king);
+    }
+    return true;
+  },
+  to_s: function(){
+    var display = "";
+    for(var row in this.pieces)
+      for(var col in row)
+      {
+        if ( col instanceof Piece)
+          display += col.to_s;
+        else
+          display += ' ';
+      }
+
+    document.getElementById('board').innerHTML(display);
+    return true;
+  },
+  is_color: function(pos,color){
+    var piece = this.pieces[pos[0]][pos[1]];
+    if (!piece || piece.color != color)
+    {
+      throw 'That is not your piece';
+      return false;
+    }
+    return true;
+  },
+  checked: function(color){
+    var moves = [];
+    var k = this.king(color);
+
+    for(var row in this.pieces)
+      for(var col in row)
+        if (col && col.color != color)
+        {
+          moves = col.moves();
+          if (moves.indexOf(k.pos) != -1)
+            return true;
+        }
+    return false;
+  },
+  checkmate: function(color){
+    var potential = [];
+    var moves = [];
+
+    for(var row in this.pieces)
+      for(var col in row)
+        if (col && col.color == color)
+        {
+          moves = col.valid_moves();
+          if (moves.length > 0)
+            return false;
+        }
+    return true;
+  },
+  king: function(color){
+    for(var row in this.pieces)
+      for(var col in row)
+        if (col && col.color == color)
+        {
+          if (col instanceof King)
+            return col
+        }
+    return;
+  },
+  passant_check: function(piece,end_pos){
+    if (! piece instanceof Pawn)
+      return;
+    if (Math.abs(piece.pos[0]-end_pos[0])==2)
+    {
+      piece.passant = true;
+    }
+    var last = this.last_moved;
+    if (last instanceof Pawn && last.passant == true)
+      if (Math.abs(last.pos[1]-piece.pos[1]) == 1)
+        if (( piece.color == 'black' && piece.pos[0] ==4)
+          || piece.color == 'white' && piece.pos[0] == 3)
+          {
+            this.pieces[last.pos[0]][last.pos[1]] = null;
+          }
+    return;
   },
   castle_check: function(piece, end_pos) {
     if (piece instanceof King) {
