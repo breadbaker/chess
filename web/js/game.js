@@ -3,26 +3,27 @@ var Game = Class.extend({
     this.board = new Board();
 
     this.player = new Player(this);
+
     this.turn = 'white';
     this.play();
   },
   play: function() {
-    alert('welcome to chess.  it is whites turn click the piece you want to move.
-     then the place you want to move it. no backsies.')
+    alert('welcome to chess.  it is whites turn click the piece you want to move.   then the place you want to move it. no backsies.');
   }
 });
 
 var Player = Class.extend({
   init: function(game){
     var that = this;
-    jQuery('#board').live('click',function(e){
+    $('#board').on('click',function(e){
       console.log(e);
       console.log(that);
 
     });
 
   }
-})
+});
+var g = new Game();
 /*
 class Game
   def play_loop
