@@ -39,78 +39,82 @@ var Board = Class.extend({
     return true;
   },
   add_rooks: function(){
-    var positions = [[0,0], [0, 7], [7, 0], [7, 7]]
+    var positions = [[0,0], [0, 7], [7, 0], [7, 7]];
     var rook = {
       board : this
     };
     var color;
     for( var position in positions )
     {
-      if (position[0] == 0)
+      p = positions[position];
+      if (p[0] == 0)
         color = 'black';
       else
         color = 'white'
 
-      rook = mergeObj(rook,{ color : color, pos : position});
+      rook = mergeObj(rook,{ color : color, pos : p});
 
-      this.pieces[position[0]][position[1]] = new Rook(rook);
+      this.pieces[p[0]][p[1]] = new Rook(rook);
     }
     return true;
   },
   add_knights: function(){
-    var positions = [[0,1], [0, 6], [7, 1], [7, 6]]
+    var positions = [[0,1], [0, 6], [7, 1], [7, 6]];
     var knight = {
       board : this
     };
     var color;
     for( var position in positions )
     {
-      if (position[0] == 0)
+      p = positions[position];
+      if (p[0] == 0)
         color = 'black';
       else
         color = 'white'
 
       knight = mergeObj(knight,{ color : color, pos : position});
 
-      this.pieces[position[0]][position[1]] = new Knight(knight);
+      this.pieces[p[0]][p[1]] = new Knight(knight);
     }
     return true;
   },
   add_knights: function(){
-    var positions = [[0,1], [0, 6], [7, 1], [7, 6]]
+    var positions = [[0,1], [0, 6], [7, 1], [7, 6]];
     var knight = {
       board : this
     };
     var color;
     for( var position in positions )
     {
-      if (position[0] == 0)
+      p = positions[position];
+      if (p[0] == 0)
         color = 'black';
       else
         color = 'white'
 
-      knight = mergeObj(knight,{ color : color, pos : position});
+      knight = mergeObj(knight,{ color : color, pos : p});
 
-      this.pieces[position[0]][position[1]] = new Knight(knight);
+      this.pieces[p[0]][p[1]] = new Knight(knight);
     }
     return true;
   },
   add_bishops: function(){
-    var positions = [0,2], [0, 5], [7, 2], [7, 5]]
+    var positions = [[0,2], [0, 5], [7, 2], [7, 5]];
     var bishop = {
       board : this
     };
     var color;
     for( var position in positions )
     {
-      if (position[0] == 0)
+      p = positions[position];
+      if (p[0] == 0)
         color = 'black';
       else
         color = 'white'
 
-      bishop = mergeObj(bishop,{ color : color, pos : position});
+      bishop = mergeObj(bishop,{ color : color, pos : p});
 
-      this.pieces[position[0]][position[1]] = new Bishop(bishop);
+      this.pieces[p[0]][p[1]] = new Bishop(bishop);
     }
     return true;
   },
@@ -122,48 +126,52 @@ var Board = Class.extend({
     var color;
     for( var position in positions )
     {
-      if (position[0] == 0)
+      p = positions[position];
+      if (p[0] == 0)
         color = 'black';
       else
         color = 'white'
 
-      queen = mergeObj(queen,{ color : color, pos : position});
+      queen = mergeObj(queen,{ color : color, pos : p});
 
-      this.pieces[position[0]][position[1]] = new Queen(queen);
+      this.pieces[p[0]][p[1]] = new Queen(queen);
     }
     return true;
   },
   add_kings: function(){
-    var positions = [[0,4],[7, 4]]
+    var positions = [[0,4],[7, 4]];
     var king = {
       board : this
     };
     var color;
     for( var position in positions )
     {
-      if (position[0] == 0)
+      p = positions[position];
+      if (p[0] == 0)
         color = 'black';
       else
         color = 'white'
 
-      queen = mergeObj(queen,{ color : color, pos : position});
+      king = mergeObj(king,{ color : color, pos : p});
 
-      this.pieces[position[0]][position[1]] = new King(king);
+      this.pieces[p[0]][p[1]] = new King(king);
     }
     return true;
   },
   to_s: function(){
     var display = "";
-    for(var row in this.pieces)
-      for(var col in row)
+    for(var row in this.pieces) {
+      for(var col in this.pieces[row])
       {
-        if ( col instanceof Piece)
-          display += col.to_s;
+        var piece = this.pieces[row][col];
+        if ( piece instanceof Piece)
+          display += piece.to_s();
         else
           display += ' ';
       }
-
-    document.getElementById('board').innerHTML(display);
+      display += "\n";
+    }
+    document.getElementById('board').innerHTML = display;
     return true;
   },
   is_color: function(pos,color){
@@ -179,36 +187,44 @@ var Board = Class.extend({
     var moves = [];
     var k = this.king(color);
 
-    for(var row in this.pieces)
-      for(var col in row)
+    for(var row in this.pieces) {
+      for(var col in this.pieces[row]) {
+        piece = this.pieces[row][col];
         if (col && col.color != color)
         {
-          moves = col.moves();
+          moves = piece.moves();
           if (moves.indexOf(k.pos) != -1)
             return true;
         }
+      }
+    }
     return false;
   },
   checkmate: function(color){
     var potential = [];
     var moves = [];
 
-    for(var row in this.pieces)
-      for(var col in row)
-        if (col && col.color == color)
-        {
-          moves = col.valid_moves();
+    for(var row in this.pieces) {
+      for(var col in this.pieces[row]) {
+        piece = this.pieces[row][col];
+          moves = piece.valid_moves();
           if (moves.length > 0)
             return false;
         }
+      }
     return true;
   },
   king: function(color){
-    for(var row in this.pieces)
-      for(var col in row)
-        if (col && col.color == color)
-          if (col instanceof King)
+    for(var row in this.pieces) {
+      for(var col in this.pieces[row]) {
+        piece = this.pieces[row][col];
+        if (piece && piece.color == piece) {
+          if (piece instanceof King) {
             return col;
+          }
+        }
+      }
+    }
     return;
   },
   passant_check: function(piece,end_pos){
@@ -301,6 +317,7 @@ var Board = Class.extend({
     var duped_pieces = []
     for (var row in pieces) {
       for (var piece in row) {
+
         duped_pieces[piece.pos[0]][piece.pos[1]] = cloneObject(piece);
       }
     }

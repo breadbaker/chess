@@ -137,11 +137,10 @@ var Knight = SteppingPiece.extend({
 
 var King = SteppingPiece.extend({
   init: function(options) {
-    var that = this._super(options);
-    that.moved = false;
-    that.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1],
+    this._super(options);
+    this.moved = false;
+    this.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1],
     [1, 1], [-1, 1], [-1, -1], [1, -1], [0, 2], [0, -2]];
-    return that;
   },
   to_s: function() {
     return this.color == "white" ? "\u2654" : "\u265A";
@@ -150,9 +149,8 @@ var King = SteppingPiece.extend({
 
 var Bishop = SlidingPiece.extend({
   init: function(options) {
-    var that = this._super(options);
-    that.move_coords = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
-    return that;
+    this._super(options);
+    this.move_coords = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
   },
   to_s: function() {
     return this.color == "white" ? "\u2657" : "\u265D";
@@ -161,10 +159,9 @@ var Bishop = SlidingPiece.extend({
 
 var Rook = SlidingPiece.extend({
   init: function(options) {
-    var that = this._super(options);
-    that.moved = false;
-    that.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1]];
-    return that;
+    this._super(options);
+    this.moved = false;
+    this.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1]];
   },
   to_s: function() {
     return this.color == "white" ? "\u2656" : "\u265C";
@@ -173,10 +170,9 @@ var Rook = SlidingPiece.extend({
 
 var Queen = SlidingPiece.extend({
   init: function(options) {
-    var that = this._super(options);
-    that.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1],
+    this._super(options);
+    this.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1],
     [1, 1], [-1, 1], [-1, -1], [1, -1]];
-    return that;
   },
   to_s: function() {
     return this.color == "white" ? "\u2655" : "\u265B";
