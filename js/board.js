@@ -91,6 +91,43 @@ var Board = Class.extend({
       this.pieces[position[0]][position[1]] = new Knight(knight);
     }
   },
+  castle_check: function(piece, end_pos) {
+    if (piece instanceof King) {
+        if (Math.abs(end_pos[1]-piece.pos[1]) == 2) {
+          if (piece.moved) {
+            throw "You can't castle once you've moved your King";
+            return;
+          } else if (this.checked(piece.color)) {
+            throw "You can't castle when you're in check!";
+            return;
+          }
+          var direction = end_pos[1] - piece.pos[1] > 0 ? 7 : 0;
+          var pieces_between = [[piece.pos[0], piece.pos[1] + (direction == 7 ? 1 : -1)],
+          [piece.pos[0], piece.pos[1] + (direction == 7 ? 2 : -2)]];
+          var target_rook = this.pieces[end_pos[0]][direction];
+          if (!target_rook || !(target_rook instanceof Rook) || target_rook.moved) {
+            throw "You can't castle in that direction because your rook has already moved";
+            return;
+          }
+          for (var p in pieces_between) {
+            if (piece.move_into_check(p)) {
+              throw "You can't move over squares under attack when castling!";
+              return;
+            } else if (this.pieces[p[0]][p[1]]) {
+              throw "You can't move over squares that are occupied.";
+              return;
+            }
+            this.pieces[pieces_between[0][0]][pieces_between[0][1]] = target_rook
+            this.pieces[target_rook.pos[0]][target_rook.pos[1]] = null
+            target_rook.pos = [pieces_between[0][0], pieces_between[0][1]]
+            target_rook.moved = true;
+          }
+        }
+        piece.moved = true;
+    } else if (piece instanceof Rook) {
+      piece.moved = true;
+    }
+  },
   queened_check: function(piece) {
     if (!(piece instanceof Pawn)) {
       return piece;
