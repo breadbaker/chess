@@ -16,7 +16,7 @@ class Piece
 
   def move_into_check?(pos)
     new_board = Board.new(self.board.dup)
-    new_board.move(self.pos,pos)
+    new_board.move(self.pos,pos, true)
     return true if new_board.checked?(self.color)
   end
 end
@@ -115,12 +115,14 @@ class Knight < SteppingPiece
 end
 
 class King < SteppingPiece
+  attr_accessor :moved
   KING_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1],
-    [1, 1], [-1, 1], [-1, -1], [1, -1]]
+    [1, 1], [-1, 1], [-1, -1], [1, -1], [0, 2], [0, -2]]
 
   def initialize(options)
     super
     @move_coords = KING_MOVES
+    @moved = false
   end
 
   def to_s
@@ -142,10 +144,12 @@ class Bishop < SlidingPiece
 end
 
 class Rook < SlidingPiece
+  attr_accessor :moved
   ROOKIE_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
   def initialize(options)
     super
+    @moved = false
     @move_coords = ROOKIE_MOVES
   end
 

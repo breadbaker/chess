@@ -158,13 +158,58 @@ class Board
     end
   end
 
-  def move(start_pos,end_pos)
+  def castle_check(piece, end_pos)
+    if piece.is_a?(King)
+      if (end_pos[1]-piece.pos[1]).abs == 2
+        raise InvalidMoveException, "You can't castle once you've moved your King" if piece.moved
+        raise InvalidMoveException, "You can't castle if you're in check." if checked?(piece.color)
+        direction = end_pos[1] - piece.pos[1] > 0 ? 7 : 0
+        pieces_between = [[piece.pos[0], piece.pos[1] + (direction == 7 ? 1 : -1)],
+          [piece.pos[0], piece.pos[1] + (direction == 7 ? 2 : -2)]]
+        target_rook = self.pieces[end_pos[0]][direction]
+        if (target_rook.nil? || !target_rook.is_a?(Rook) || target_rook.moved)
+          raise InvalidMoveException, "You can't castle in that direction because your rook has already moved"
+        end
+        pieces_between.each do |between|
+          raise InvalidMoveException, "You can't move through or into checkw while castling." if piece.move_into_check?(between)
+          raise InvalidMoveException, "You can't castle because there's a piece in the way." unless self.pieces[between[0]][between[1]].nil?
+        end
+        self.pieces[pieces_between[0][0]][pieces_between[0][1]] = target_rook
+        self.pieces[target_rook.pos[0]][target_rook.pos[1]] = nil
+        target_rook.pos = [pieces_between[0][0], pieces_between[0][1]]
+        puts "Castled!"
+      end
+      piece.moved = true
+    elsif piece.is_a?(Rook)
+      piece.moved = true
+    end
+  end
+
+  def queened_check(piece)
+    return piece unless piece.is_a?(Pawn)
+    end_dest = piece.color == :black ? 7 : 0
+    if piece.pos[0] == end_dest
+      self.pieces[piece.pos[0]][piece.pos[1]] = Queen.new ({
+        :board  =>  self,
+        :pos    =>  piece.pos,
+        :color  =>  piece.color
+      })
+    end
+
+    self.pieces[piece.pos[0]][piece.pos[1]]
+  end
+
+  def move(start_pos,end_pos, checked_test=false)
     piece = self.pieces[start_pos[0]][start_pos[1]]
-    if piece.moves.include?(end_pos)
+    moves = piece.moves
+    moves = piece.valid_moves unless checked_test
+    if moves.include?(end_pos)
+      castle_check(piece, end_pos) unless checked_test
       passant_check(piece,end_pos)
       self.pieces[end_pos[0]][end_pos[1]] = piece
       self.pieces[start_pos[0]][start_pos[1]] = nil
       piece.pos = end_pos
+      piece = queened_check(piece)
       self.last_moved = piece
     else
       raise InvalidMoveException, "Invalid Destination"
