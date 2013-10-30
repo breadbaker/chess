@@ -207,10 +207,8 @@ var Board = Class.extend({
     for(var row in this.pieces)
       for(var col in row)
         if (col && col.color == color)
-        {
           if (col instanceof King)
-            return col
-        }
+            return col;
     return;
   },
   passant_check: function(piece,end_pos){
