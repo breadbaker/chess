@@ -111,7 +111,7 @@ var Pawn = SteppingPiece.extend({
       }
       var space = this.board.pieces[this.pos[0] + step[0]][this.pos[1] + step[1]];
       if (!space) {
-        moves.push[this.pos[0] + step[0],this.pos[1] + step[1]];
+        moves.push([this.pos[0] + step[0],this.pos[1] + step[1]]);
       }
     }
     return moves;
@@ -122,74 +122,59 @@ var Knight = SteppingPiece.extend({
     init: function(options) {
       var that = this._super(options);
       that.move_coords = [[1,2],[-1,2],[1,-2],
-    [-1,-2],[2,1],[-2,1],[-2,-1],[2,-1]];
+      [-1,-2],[2,1],[-2,1],[-2,-1],[2,-1]];
+      return that;
     },
 
     to_s: function() {
       return this.color == "white" ? "\u2658" : "\u265E";
     }
 });
-class King < SteppingPiece
-  attr_accessor :moved
-  KING_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1],
-    [1, 1], [-1, 1], [-1, -1], [1, -1], [0, 2], [0, -2]]
 
-  def initialize(options)
-    super
-    @move_coords = KING_MOVES
-    @moved = false
-  end
+var King = SteppingPiece.extend({
+  init: function(options) {
+    var that = this._super(options);
+    that.moved = false;
+    that.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1],
+    [1, 1], [-1, 1], [-1, -1], [1, -1], [0, 2], [0, -2]];
+    return that;
+  },
+  to_s: function() {
+    return this.color == "white" ? "\u2654" : "\u265A";
+  }
+});
 
-  def to_s
-    self.color == :white ? "\u2654" : "\u265A"
-  end
-end
+var Bishop = SlidingPiece.extend({
+  init: function(options) {
+    var that = this._super(options);
+    that.move_coords = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
+    return that;
+  },
+  to_s: function() {
+    return this.color == "white" ? "\u2657" : "\u265D";
+  }
+});
 
-class Bishop < SlidingPiece
-  BISHOP_MOVES = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+var Rook = SlidingPiece.extend({
+  init: function(options) {
+    var that = this._super(options);
+    that.moved = false;
+    that.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+    return that;
+  },
+  to_s: function() {
+    return this.color == "white" ? "\u2656" : "\u265C";
+  }
+});
 
-  def initialize(options)
-    super
-    @move_coords = BISHOP_MOVES
-  end
-
-  def to_s
-    self.color == :white ? "\u2657" : "\u265D"
-  end
-end
-
-class Rook < SlidingPiece
-  attr_accessor :moved
-  ROOKIE_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-
-  def initialize(options)
-    super
-    @moved = false
-    @move_coords = ROOKIE_MOVES
-  end
-
-  def to_s
-    self.color == :white ? "\u2656" : "\u265C"
-  end
-end
-
-class Queen < SlidingPiece
-  QUEEN_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1],
-    [1, 1], [-1, 1], [-1, -1], [1, -1]]
-
-  def initialize(options)
-    super
-    @move_coords = QUEEN_MOVES
-  end
-
-  def to_s
-    self.color == :white ? "\u2655" : "\u265B"
-  end
-end
-
-var Queen = function() {};
-Queen.prototype = {
-  var QUEEN_MOVES = [[1, 0], [0, 1], [-1, 0], [0, -1],
+var Queen = SlidingPiece.extend({
+  init: function(options) {
+    var that = this._super(options);
+    that.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1],
     [1, 1], [-1, 1], [-1, -1], [1, -1]];
-
-};
+    return that;
+  },
+  to_s: function() {
+    return this.color == "white" ? "\u2655" : "\u265B";
+  }
+});
