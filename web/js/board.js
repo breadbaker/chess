@@ -10,6 +10,7 @@ var Board = Class.extend({
     for (var i = 0; i < 8; i++) {
       this.pieces[i] = new Array(8);
     }
+    this.add_board_struct();
     this.add_pawns();
     this.add_rooks();
     this.add_knights();
@@ -18,6 +19,19 @@ var Board = Class.extend({
     this.add_kings();
 
     return;
+  },
+  add_board_struct: function(){
+    board = $('#board');
+    for (var i = 0; i < 8; i++) {
+      var row = $(document.createElement('div'));
+      row.addClass('row');
+      for (var y = 0; y < 8; y ++ ){
+        var sq = $(document.createElement('span'));
+        sq.addClass('square');
+        row.append(sq);
+      }
+      board.append(row);
+    }
   },
   add_pawns: function(){
     var pawn = {
@@ -158,20 +172,23 @@ var Board = Class.extend({
     }
     return true;
   },
-  to_s: function(){
+  render: function(){
     var display = "";
     for(var row in this.pieces) {
       for(var col in this.pieces[row])
       {
+
         var piece = this.pieces[row][col];
         if ( piece instanceof Piece)
+        var sq =
+          $( "ul li:nth-child("+col+")" ).append( "<span> - 2nd!</span>" );
           display += piece.to_s();
         else
           display += ' ';
       }
       display += "\n";
     }
-    document.getElementById('board').innerHTML = display;
+    //document.getElementById('board').innerHTML = display;
     return true;
   },
   is_color: function(pos,color){

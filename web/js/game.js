@@ -9,6 +9,7 @@ var Game = Class.extend({
   },
   play: function() {
     alert('welcome to chess.  it is whites turn click the piece you want to move.   then the place you want to move it. no backsies.');
+    this.board.render();
   }
 });
 
