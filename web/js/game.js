@@ -16,12 +16,19 @@ var Game = Class.extend({
 var Player = Class.extend({
   init: function(game){
     var that = this;
-    $('#board').on('click',function(e){
-      console.log(e);
-      console.log(that);
-
+    var pickedPiece = false;
+    var startCoord = [];
+    var endCoord = []
+    $(".square").on('click', function(e) {
+      var row = $(this).parent().index();
+      var column = $(this).index();
+      pickedPiece = !pickedPiece;
+      if (pickedPiece) {
+        startCoord = [row, column];
+      } else {
+        endCoord = [row, column];
+      }
     });
-
   }
 });
 var g = new Game();

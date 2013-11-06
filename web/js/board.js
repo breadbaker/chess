@@ -179,11 +179,11 @@ var Board = Class.extend({
       {
 
         var piece = this.pieces[row][col];
-        if ( piece instanceof Piece)
+        if ( piece instanceof Piece) {
         var sq =
           $( "ul li:nth-child("+col+")" ).append( "<span> - 2nd!</span>" );
           display += piece.to_s();
-        else
+        } else
           display += ' ';
       }
       display += "\n";
