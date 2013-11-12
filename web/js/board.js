@@ -183,14 +183,9 @@ var Board = Class.extend({
           $( "#board div.row:nth-child("+x+") span.square:nth-child("+y+") " );
         var piece = this.pieces[row][col];
         if ( piece instanceof Piece) {
-
-
-          console.log(sq);
           sq.html(piece.to_s());
         } else{
-
           sq.html('.');
-          console.log(sq);
         }
       }
       display += "\n";
@@ -318,9 +313,9 @@ var Board = Class.extend({
   },
   move: function(start_pos, end_pos, checked_test) {
     var piece = this.pieces[start_pos[0]][start_pos[1]];
-    var moves = piece.moves;
+    var moves = piece.moves();
     if (arguments.length == 2) {
-      moves = piece.valid_moves;
+      moves = piece.valid_moves();
     }
     if (moves.indexOf(end_pos)) {
       if (arguments.length == 2) {
@@ -328,21 +323,24 @@ var Board = Class.extend({
       }
       this.passant_check(piece, end_pos);
       this.pieces[end_pos[0]][end_pos[1]] = piece;
-      self.pieces[start_pos[0]][end_pos[1]] = null;
+      this.pieces[start_pos[0]][end_pos[1]] = null;
       piece.pos = end_pos;
       piece = this.queened_check(piece);
       this.last_moved = piece;
     } else {
       throw "Invalid Destination";
     }
+    console.log("hi4");
     return true;
   },
   dup: function() {
-    var duped_pieces = []
-    for (var row in pieces) {
-      for (var piece in row) {
-
-        duped_pieces[piece.pos[0]][piece.pos[1]] = cloneObject(piece);
+    var duped_pieces = new Array(8);
+    for (var i = 0; i < 8; i++) {
+       duped_pieces[i] = new Array(8);
+    }
+    for (var x in this.pieces) {
+      for (var y in this.pieces[x]) {
+        duped_pieces[this.pieces[x][y].pos[0]][this.pieces[x][y].pos[1]] = cloneObject(this.pieces[x][y]);
       }
     }
     return duped_pieces;
@@ -353,12 +351,5 @@ var Board = Class.extend({
 });
 
 function cloneObject(obj) {
-    if (obj === null || typeof obj !== 'object') {
-        return obj;
-    }
-    var temp = obj.constructor();
-    for (var key in obj) {
-        temp[key] = cloneObject(obj[key]);
-    }
-    return temp;
+    return jQuery.extend(true, {}, obj);
 }

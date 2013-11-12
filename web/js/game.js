@@ -12,17 +12,11 @@ var Game = Class.extend({
     this.board.render();
   },
   move: function(player) {
-    if (player.color == turn) {
-      var rightColor = this.board.isColor(player.startCoord, turn);
-      try {
-        var moved = this.board.move(player.startCoord, player.endCoord);
-        turn = turn == "white" ? "black" : "white";
-      } catch (e) {
-        alert("Error: " + e.message);
-      }
-    } else {
-      alert("It's not your turn!");
-    }
+    var rightColor = this.board.is_color(player.startCoord, this.turn);
+    this.board.move(player.startCoord, player.endCoord);
+    console.log("hi3");
+    this.turn = this.turn == "white" ? "black" : "white";
+    this.board.render();
   }
 });
 
@@ -41,7 +35,7 @@ var Player = Class.extend({
         self.startCoord = [row, column];
       } else {
         self.endCoord = [row, column];
-        self.game.move(self);
+        game.move(self);
       }
     });
   }

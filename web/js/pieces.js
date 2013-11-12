@@ -89,11 +89,11 @@ var Pawn = SteppingPiece.extend({
   moves: function() {
     var moves = [];
     var attack_arr = [[1,1], [1,-1]];
-    for (var attack in attack_arr) {
+    for (var i in attack_arr) {
       if (this.color == "white") {
-        attack[0] = -attack[0];
+        attack_arr[i][0] = -attack_arr[i][0];
       }
-      var space = this.board.pieces[this.pos[0] + attack[0]][this.pos[1] + attack[1]];
+      var space = this.board.pieces[this.pos[0] + attack_arr[i][0]][this.pos[1] + attack_arr[i][1]];
       if (space && space.color != this.color) {
         moves.push([this.pos[0] + attack[0], this.pos[1] + attack[1]]);
       }
@@ -110,13 +110,13 @@ var Pawn = SteppingPiece.extend({
     if ((this.color == "white" && this.pos[0] == 6) || (this.color == "black" && this.pos[1] == 1)) {
       steps.push([2,0]);
     }
-    for (var step in steps) {
+    for (var i in steps) {
       if (this.color == "white") {
-        step[0] = -(step[0]);
+        steps[i][0] = -(steps[i][0]);
       }
-      var space = this.board.pieces[this.pos[0] + step[0]][this.pos[1] + step[1]];
+      var space = this.board.pieces[this.pos[0] + steps[i][0]][this.pos[1] + steps[i][1]];
       if (!space) {
-        moves.push([this.pos[0] + step[0],this.pos[1] + step[1]]);
+        moves.push([this.pos[0] + steps[i][0],this.pos[1] + steps[i][1]]);
       }
     }
     return moves;
