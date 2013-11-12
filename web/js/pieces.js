@@ -47,8 +47,8 @@ var SlidingPiece = Piece.extend({
   moves: function() {
     var moves = [];
     var coords = this.move_coords;
-    for (var move in coords) {
-      moves.push(this.move_dirs(move));
+    for (var i in coords) {
+      moves.push(this.move_dirs(coords[i]));
     }
     return moves;
   }

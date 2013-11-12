@@ -1,3 +1,15 @@
+function getObjectClass(obj) {
+    if (obj && obj.constructor && obj.constructor.toString) {
+        var arr = obj.constructor.toString().match(
+            /function\s*(\w+)/);
+
+        if (arr && arr.length == 2) {
+            return arr[1];
+        }
+    }
+
+    return undefined;
+}
 var Board = Class.extend({
   init: function(pieces){
     if(!pieces)
@@ -234,12 +246,13 @@ var Board = Class.extend({
     return true;
   },
   king: function(color){
-    for(var row in this.pieces) {
-      for(var col in this.pieces[row]) {
+    var symbol = color == "white" ? "\u2654" : "\u265A";
+    for(var row = 0; row < 8; row++) {
+      for(var col = 0; col < 8; col++) {
         piece = this.pieces[row][col];
-        if (piece && piece.color == piece) {
-          if (piece instanceof King) {
-            return col;
+        if (piece && piece.color == color) {
+          if (piece.to_s() == symbol) {
+            return piece;
           }
         }
       }
