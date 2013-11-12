@@ -174,17 +174,24 @@ var Board = Class.extend({
   },
   render: function(){
     var display = "";
-    for(var row in this.pieces) {
-      for(var col in this.pieces[row])
+    for(var row = 0; row < 8; row++) {
+      for(var col = 0; col < 8; col++)
       {
-
+        var x = parseInt(row)+1;
+        var y = parseInt(col)+1;
+        var sq =
+          $( "#board div.row:nth-child("+x+") span.square:nth-child("+y+") " );
         var piece = this.pieces[row][col];
         if ( piece instanceof Piece) {
-        var sq =
-          $( "ul li:nth-child("+col+")" ).append( "<span> - 2nd!</span>" );
-          display += piece.to_s();
-        } else
-          display += ' ';
+
+
+          console.log(sq);
+          sq.html(piece.to_s());
+        } else{
+
+          sq.html('.');
+          console.log(sq);
+        }
       }
       display += "\n";
     }
