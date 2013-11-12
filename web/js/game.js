@@ -10,15 +10,14 @@ var Game = Class.extend({
   play: function() {
     alert('welcome to chess.  it is whites turn click the piece you want to move.   then the place you want to move it. no backsies.');
     this.board.render();
-  }
-
+  },
   move: function(player) {
     if (player.color == turn) {
       var rightColor = this.board.isColor(player.startCoord, turn);
       try {
         var moved = this.board.move(player.startCoord, player.endCoord);
         turn = turn == "white" ? "black" : "white";
-      } catch (Exception e) {
+      } catch (e) {
         alert("Error: " + e.message);
       }
     } else {
