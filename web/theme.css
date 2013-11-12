@@ -13,3 +13,12 @@
   width: 578px;
   height: 578px;
 }
+.square{
+  float:left;
+  min-width:12.5%;
+  min-height:12.5%;
+}
+.row{
+  min-height:12.5%;
+  width: 100%;
+}
