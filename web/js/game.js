@@ -8,15 +8,21 @@ var Game = Class.extend({
     this.play();
   },
   play: function() {
-    alert('welcome to chess.  it is whites turn click the piece you want to move.   then the place you want to move it. no backsies.');
+    console.log('welcome to chess.  it is whites turn click the piece you want to move.   then the place you want to move it. no backsies.');
     this.board.render();
   },
   move: function(player) {
     var rightColor = this.board.is_color(player.startCoord, this.turn);
     this.board.move(player.startCoord, player.endCoord);
-    console.log("hi3");
+
     this.turn = this.turn == "white" ? "black" : "white";
     this.board.render();
+    if(this.board.checkmate(this.turn))
+    {
+      console.log('game over');
+      $(".square").unbind('click');
+    }
+
   }
 });
 

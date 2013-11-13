@@ -7,14 +7,19 @@ var Piece = Class.extend({
   valid_moves: function(){
     var moves = this.moves();
     var valid_moves = [];
-    for (var move in moves) {
-      if (!this.move_into_check(move))
-        valid_moves.push(move);
+    for (var i in moves) {
+      if (!this.move_into_check(moves[i]))
+        valid_moves.push(moves[i]);
     }
+    console.log('valid moves',valid_moves);
     return valid_moves;
   },
   move_into_check : function(pos) {
+    console.log(pos);
+
     var new_board = new Board(this.board.dup());
+    if(new_board.off_the_grid(pos))
+      return false;
     new_board.move(this.pos, pos, true);
     return new_board.checked(this.color);
   }
@@ -27,6 +32,7 @@ var SlidingPiece = Piece.extend({
   move_dirs: function(cord) {
     var moves = [];
     var i = 1;
+    console.log('init cord', cord);
     while (true) {
       var pos = [this.pos[0] + (cord[0] * i), this.pos[1] + (cord[1] * i)];
       if (this.board.off_the_grid(pos)) {
@@ -42,14 +48,16 @@ var SlidingPiece = Piece.extend({
       moves.push(pos);
       i++;
     }
+    console.log(moves);
     return moves;
   },
   moves: function() {
     var moves = [];
     var coords = this.move_coords;
     for (var i in coords) {
-      moves.push(this.move_dirs(coords[i]));
+      moves.concat(this.move_dirs(coords[i]));
     }
+    console.log('moves',moves);
     return moves;
   }
 });
@@ -60,17 +68,17 @@ var SteppingPiece = Piece.extend({
   },
   moves: function() {
     var move_arr = [];
-    for (var move in this.move_coords) {
-      var x = move[0] + this.pos[0];
-      var y = move[1] + this.pos[1];
+    for (var i in this.move_coords) {
+      var x = this.move_coords[i][0] + this.pos[0];
+      var y = this.move_coords[i][1] + this.pos[1];
       move_arr.push([x, y]);
     }
     var ret_arr = [];
-    for (var mv in move_arr) {
-      if (!this.board.off_the_grid(mv)) {
-        var space = this.board.pieces[mv[0]][mv[1]];
+    for (var i in move_arr) {
+      if (!this.board.off_the_grid(move_arr[i])) {
+        var space = this.board.pieces[move_arr[i][0]][move_arr[i][1]];
         if (!space || space.color != this.color) {
-        	ret_arr.push(space.pos);
+        	ret_arr.concat(move_arr[i]);
         }
       }
     }
@@ -95,7 +103,7 @@ var Pawn = SteppingPiece.extend({
       }
       var space = this.board.pieces[this.pos[0] + attack_arr[i][0]][this.pos[1] + attack_arr[i][1]];
       if (space && space.color != this.color) {
-        moves.push([this.pos[0] + attack[0], this.pos[1] + attack[1]]);
+        moves.push([this.pos[0] + attack_arr[i][0], this.pos[1] + attack_arr[i][1]]);
       }
     }
     var last = this.board.last_moved;

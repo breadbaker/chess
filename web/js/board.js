@@ -208,8 +208,8 @@ var Board = Class.extend({
 
     for(var row in this.pieces) {
       for(var col in this.pieces[row]) {
-        piece = this.pieces[row][col];
-        if (col && col.color != color)
+        var piece = this.pieces[row][col];
+        if (piece && piece.color != color)
         {
           moves = piece.moves();
           if (moves.indexOf(k.pos) != -1)
@@ -222,13 +222,16 @@ var Board = Class.extend({
   checkmate: function(color){
     var potential = [];
     var moves = [];
-
+    var piece;
     for(var row in this.pieces) {
       for(var col in this.pieces[row]) {
         piece = this.pieces[row][col];
-          moves = piece.valid_moves();
-          if (moves.length > 0)
-            return false;
+        if(piece && piece.color == color)
+          {
+            moves = piece.valid_moves();
+            if (moves.length > 0)
+              return false;
+          }
         }
       }
     return true;
@@ -307,12 +310,13 @@ var Board = Class.extend({
     } else {
      var end_dest = piece.color == "black" ? 7 : 0;
      if (piece.pos[0] == end_dest) {
-       this.pieces[pos[0]][pos[1]] = new Queen({board: this, pos: piece.pos, color: piece.color});
+       this.pieces[piece.pos[0]][piece.pos[1]] = new Queen({board: this, pos: piece.pos, color: piece.color});
      }
     }
-    return this.pieces[pos[0]][pos[1]];
+    return this.pieces[piece.pos[0]][piece.pos[1]];
   },
   move: function(start_pos, end_pos, checked_test) {
+    console.log('end',start_pos,end_pos);
     var piece = this.pieces[start_pos[0]][start_pos[1]];
     var moves = piece.moves();
     if (arguments.length == 2) {
@@ -323,6 +327,7 @@ var Board = Class.extend({
         this.castle_check(piece, end_pos);
       }
       this.passant_check(piece, end_pos);
+      console.log(this.pieces[end_pos[0]][end_pos[1]]);
       this.pieces[end_pos[0]][end_pos[1]] = piece;
       this.pieces[start_pos[0]][end_pos[1]] = null;
       piece.pos = end_pos;
@@ -331,7 +336,6 @@ var Board = Class.extend({
     } else {
       throw "Invalid Destination";
     }
-    console.log("hi4");
     return true;
   },
   dup: function() {
@@ -339,9 +343,12 @@ var Board = Class.extend({
     for (var i = 0; i < 8; i++) {
        duped_pieces[i] = new Array(8);
     }
+    var piece;
     for (var x in this.pieces) {
       for (var y in this.pieces[x]) {
-        duped_pieces[this.pieces[x][y].pos[0]][this.pieces[x][y].pos[1]] = cloneObject(this.pieces[x][y]);
+        piece = this.pieces[x][y];
+        if (piece)
+          duped_pieces[piece.pos[0]][piece.pos[1]] = cloneObject(piece);
       }
     }
     return duped_pieces;
