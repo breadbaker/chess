@@ -223,14 +223,20 @@ var Board = Class.extend({
     var potential = [];
     var moves = [];
     var piece;
-    for(var row in this.pieces) {
-      for(var col in this.pieces[row]) {
-        piece = this.pieces[row][col];
+    for(var x in this.pieces) {
+      for(var y in this.pieces[x]) {
+        piece = this.pieces[x][y];
         if(piece && piece.color == color)
           {
             moves = piece.valid_moves();
+
             if (moves.length > 0)
+            {
+              console.log(piece,piece.to_s());
+              console.log(color);
+              console.log(moves);
               return false;
+            }
           }
         }
       }
@@ -316,7 +322,7 @@ var Board = Class.extend({
     return this.pieces[piece.pos[0]][piece.pos[1]];
   },
   move: function(start_pos, end_pos, checked_test) {
-    console.log('end',start_pos,end_pos);
+
     var piece = this.pieces[start_pos[0]][start_pos[1]];
     var moves = piece.moves();
     if (arguments.length == 2) {
@@ -327,9 +333,9 @@ var Board = Class.extend({
         this.castle_check(piece, end_pos);
       }
       this.passant_check(piece, end_pos);
-      console.log(this.pieces[end_pos[0]][end_pos[1]]);
+
       this.pieces[end_pos[0]][end_pos[1]] = piece;
-      this.pieces[start_pos[0]][end_pos[1]] = null;
+      this.pieces[start_pos[0]][start_pos[1]] = null;
       piece.pos = end_pos;
       piece = this.queened_check(piece);
       this.last_moved = piece;

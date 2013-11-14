@@ -5,21 +5,24 @@ var Piece = Class.extend({
     this.pos = options.pos;
   },
   valid_moves: function(){
-    var moves = this.moves();
+    var m = this.moves();
+    var moves = [];
+    for(var i = 0; i < m.length; i++)
+      if(!this.board.off_the_grid(m[i]))
+      {
+        moves.push(m[i]);
+      }
     var valid_moves = [];
     for (var i in moves) {
       if (!this.move_into_check(moves[i]))
         valid_moves.push(moves[i]);
     }
-    console.log('valid moves',valid_moves);
+
     return valid_moves;
   },
   move_into_check : function(pos) {
-    console.log(pos);
-
     var new_board = new Board(this.board.dup());
-    if(new_board.off_the_grid(pos))
-      return false;
+
     new_board.move(this.pos, pos, true);
     return new_board.checked(this.color);
   }
@@ -32,7 +35,7 @@ var SlidingPiece = Piece.extend({
   move_dirs: function(cord) {
     var moves = [];
     var i = 1;
-    console.log('init cord', cord);
+
     while (true) {
       var pos = [this.pos[0] + (cord[0] * i), this.pos[1] + (cord[1] * i)];
       if (this.board.off_the_grid(pos)) {
@@ -48,7 +51,7 @@ var SlidingPiece = Piece.extend({
       moves.push(pos);
       i++;
     }
-    console.log(moves);
+
     return moves;
   },
   moves: function() {
@@ -57,7 +60,7 @@ var SlidingPiece = Piece.extend({
     for (var i in coords) {
       moves.concat(this.move_dirs(coords[i]));
     }
-    console.log('moves',moves);
+
     return moves;
   }
 });
