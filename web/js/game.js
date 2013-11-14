@@ -13,7 +13,8 @@ var Game = Class.extend({
   },
   move: function(player) {
     var rightColor = this.board.is_color(player.startCoord, this.turn);
-    this.board.move(player.startCoord, player.endCoord);
+    this.board.move(player.startCoord, player.endCoord, false);
+
 
     this.turn = this.turn == "white" ? "black" : "white";
     this.board.render();

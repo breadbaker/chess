@@ -190,7 +190,6 @@ var Board = Class.extend({
       }
       display += "\n";
     }
-    //document.getElementById('board').innerHTML = display;
     return true;
   },
   is_color: function(pos,color){
@@ -205,15 +204,21 @@ var Board = Class.extend({
   checked: function(color){
     var moves = [];
     var k = this.king(color);
+    var piece;
 
-    for(var row in this.pieces) {
-      for(var col in this.pieces[row]) {
-        var piece = this.pieces[row][col];
+    for(var x = 0; x < 8; x++) {
+      for(var y = 0; y < 8; y++) {
+        piece = this.pieces[x][y];
         if (piece && piece.color != color)
         {
           moves = piece.moves();
+
+
           if (moves.indexOf(k.pos) != -1)
+          {
+            console.log('we have check!!!');
             return true;
+          }
         }
       }
     }
@@ -232,9 +237,6 @@ var Board = Class.extend({
 
             if (moves.length > 0)
             {
-              console.log(piece,piece.to_s());
-              console.log(color);
-              console.log(moves);
               return false;
             }
           }
@@ -243,14 +245,13 @@ var Board = Class.extend({
     return true;
   },
   king: function(color){
-    var symbol = color == "white" ? "\u2654" : "\u265A";
+    var piece;
     for(var row = 0; row < 8; row++) {
       for(var col = 0; col < 8; col++) {
         piece = this.pieces[row][col];
-        if (piece && piece.color == color) {
-          if (piece.to_s() == symbol) {
+
+        if (piece && piece.color == color && piece.king) {
             return piece;
-          }
         }
       }
     }
@@ -322,14 +323,14 @@ var Board = Class.extend({
     return this.pieces[piece.pos[0]][piece.pos[1]];
   },
   move: function(start_pos, end_pos, checked_test) {
-
     var piece = this.pieces[start_pos[0]][start_pos[1]];
     var moves = piece.moves();
-    if (arguments.length == 2) {
+
+    if (checked_test == false) {
       moves = piece.valid_moves();
     }
-    if (moves.indexOf(end_pos)) {
-      if (arguments.length == 2) {
+    if (moves.indexOf(end_pos) == -1) {
+      if (checked_test == false) {
         this.castle_check(piece, end_pos);
       }
       this.passant_check(piece, end_pos);
@@ -345,6 +346,20 @@ var Board = Class.extend({
     return true;
   },
   dup: function() {
+
+    var duped = [];
+    for( var x = 0; x < 8; x++)
+    {
+      duped.push([]);
+      for(var y = 0; y < 8; y++)
+      {
+        if (this.pieces[x][y])
+          duped[x].push(cloneObject(this.pieces[x][y]));
+        else
+          duped[x].push(null);
+      }
+    }
+    return duped;
     var duped_pieces = new Array(8);
     for (var i = 0; i < 8; i++) {
        duped_pieces[i] = new Array(8);

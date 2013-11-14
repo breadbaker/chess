@@ -5,24 +5,16 @@ var Piece = Class.extend({
     this.pos = options.pos;
   },
   valid_moves: function(){
-    var m = this.moves();
-    var moves = [];
-    for(var i = 0; i < m.length; i++)
-      if(!this.board.off_the_grid(m[i]))
-      {
-        moves.push(m[i]);
-      }
+    var moves = this.moves();
     var valid_moves = [];
-    for (var i in moves) {
+    for (var i = 0; i < moves.length; i++) {
       if (!this.move_into_check(moves[i]))
         valid_moves.push(moves[i]);
     }
-
     return valid_moves;
   },
   move_into_check : function(pos) {
-    var new_board = new Board(this.board.dup());
-
+    var new_board = new Board(this.board.dup());//new Board( J
     new_board.move(this.pos, pos, true);
     return new_board.checked(this.color);
   }
@@ -51,14 +43,14 @@ var SlidingPiece = Piece.extend({
       moves.push(pos);
       i++;
     }
-
     return moves;
   },
   moves: function() {
     var moves = [];
     var coords = this.move_coords;
-    for (var i in coords) {
-      moves.concat(this.move_dirs(coords[i]));
+    for (var i= 0; i < coords.length; i++) {
+
+      moves = moves.concat(this.move_dirs(coords[i]));
     }
 
     return moves;
@@ -149,6 +141,7 @@ var Knight = SteppingPiece.extend({
 var King = SteppingPiece.extend({
   init: function(options) {
     this._super(options);
+    this.king = true;
     this.moved = false;
     this.move_coords = [[1, 0], [0, 1], [-1, 0], [0, -1],
     [1, 1], [-1, 1], [-1, -1], [1, -1], [0, 2], [0, -2]];
