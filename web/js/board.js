@@ -348,6 +348,7 @@ var Board = Class.extend({
   dup: function() {
 
     var duped = [];
+
     for( var x = 0; x < 8; x++)
     {
       duped.push([]);
