@@ -3,6 +3,7 @@ var Game = Class.extend({
     this.board = new Board();
 
     this.player = new Player(this);
+    this.ready = true;
 
     this.turn = 'white';
     this.play();
@@ -12,8 +13,12 @@ var Game = Class.extend({
     this.board.render();
   },
   move: function(player) {
+    if(!this.ready)
+      return;
     var rightColor = this.board.is_color(player.startCoord, this.turn);
+    this.ready = false;
     this.board.move(player.startCoord, player.endCoord, false);
+    this.ready = true;
 
 
     this.turn = this.turn == "white" ? "black" : "white";
@@ -21,6 +26,8 @@ var Game = Class.extend({
     if(this.board.checkmate(this.turn))
     {
       console.log('game over');
+      this.turn = this.turn == "white" ? "black" : "white";
+      console.log(this.turn, ' wins');
       $(".square").unbind('click');
     }
 

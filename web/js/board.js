@@ -212,12 +212,12 @@ var Board = Class.extend({
         if (piece && piece.color != color)
         {
           moves = piece.moves();
-
-
-          if (moves.indexOf(k.pos) != -1)
+          for(var i = 0; i < moves.length; i++)
           {
-            console.log('we have check!!!');
-            return true;
+            if(moves[i][0] == k.pos[0] && moves[i][0] == k.pos[0])
+            {
+              return true;
+            }
           }
         }
       }
@@ -323,22 +323,32 @@ var Board = Class.extend({
     return this.pieces[piece.pos[0]][piece.pos[1]];
   },
   move: function(start_pos, end_pos, checked_test) {
+    if(!start_pos || !end_pos)
+    console.log('what');
     var piece = this.pieces[start_pos[0]][start_pos[1]];
     var moves = piece.moves();
+    if(this.off_the_grid(piece.pos))
+    console.log('missing');
 
     if (checked_test == false) {
       moves = piece.valid_moves();
     }
     if (moves.indexOf(end_pos) == -1) {
       if (checked_test == false) {
-        this.castle_check(piece, end_pos);
+        //this.castle_check(piece, end_pos);
       }
       this.passant_check(piece, end_pos);
+      try{
 
       this.pieces[end_pos[0]][end_pos[1]] = piece;
+      }
+      catch(err){
+        console.log('piece',piece);
+        console.log('start',start_pos,'end',end_pos);
+      }
       this.pieces[start_pos[0]][start_pos[1]] = null;
       piece.pos = end_pos;
-      piece = this.queened_check(piece);
+      //piece = this.queened_check(piece);
       this.last_moved = piece;
     } else {
       throw "Invalid Destination";

@@ -37,8 +37,8 @@ var SlidingPiece = Piece.extend({
       if (hit_piece) {
         if (hit_piece.color != this.color) {
           moves.push(pos);
-          break;
         }
+        break;
       }
       moves.push(pos);
       i++;
@@ -63,21 +63,22 @@ var SteppingPiece = Piece.extend({
   },
   moves: function() {
     var move_arr = [];
-    for (var i in this.move_coords) {
-      var x = this.move_coords[i][0] + this.pos[0];
-      var y = this.move_coords[i][1] + this.pos[1];
+    var coords = this.move_coords;
+    for (var i = 0; i < coords.length; i++) {
+      var x = coords[i][0] + this.pos[0];
+      var y = coords[i][1] + this.pos[1];
       move_arr.push([x, y]);
     }
     var ret_arr = [];
-    for (var i in move_arr) {
+    for (var i = 0; i < move_arr.length; i++) {
       if (!this.board.off_the_grid(move_arr[i])) {
         var space = this.board.pieces[move_arr[i][0]][move_arr[i][1]];
         if (!space || space.color != this.color) {
-        	ret_arr.concat(move_arr[i]);
+        	ret_arr.push(move_arr[i]);
         }
       }
     }
-    return move_arr;
+    return ret_arr;
   }
 });
 
